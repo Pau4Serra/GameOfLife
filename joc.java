@@ -1,6 +1,7 @@
 package Joc;
 
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 public class joc {
 	
@@ -17,6 +18,12 @@ public class joc {
 		char [][] board=null;
 		while (option != 0) {
 			 option = menu();
+			 if (option < 0 || option > 5) {
+				 System.out.println();
+				 System.out.println("Opció no vàlida, torna a escollir una opció vàlida");
+				 System.out.println();
+				 option = menu();
+			 }
 			switch(option) {
 			
 			case 1: 
@@ -31,18 +38,33 @@ public class joc {
 			case 2:
 				if (option == 2) {
 					
-					generarTauler(board);
-					posicionamentManual(board);
+					if (board == null) {
+						System.out.println();
+						System.out.println("Primer has de definir el tauler! ");
+						System.out.println();
+					}
+					
+					else {
+						generarTauler(board);
+						posicionamentManual(board);
+					}
 					
 					break;
 				}
 				
 			case 3:
 				if (option == 3) {
-
-					generarTauler(board);
-					posicionamentAuto(board);
-						
+					if (board == null) {
+						System.out.println();
+						System.out.println("Primer has de definir el tauler! ");
+						System.out.println();
+					}
+					
+					else {
+						generarTauler(board);
+						posicionamentAuto(board);
+					}
+					
 					break;
 				}
 				
@@ -90,8 +112,8 @@ public class joc {
 		for (int s = 0; s < iteracions; s++){
 			for (int y = 0; y < board.length; y++) {
 				for (int x = 0; x < board[y].length; x++) {
+					contador = 0;
 					if (board[y][x] == '■') {
-						contador = 0;
 						if (board[y].length > (y+1)) {
 							if (board[y+1][x] == '■') {
 								contador++;
@@ -147,7 +169,6 @@ public class joc {
 						}
 						
 					} else {
-						contador = 0;
 						if (board[y].length > (y+1)) {
 							if (board[y+1][x] == '■') {
 								contador++;
@@ -205,15 +226,13 @@ public class joc {
 				}
 			}
 			
-			char next;
-			System.out.println("NEXT? (Y/N) ");
-			next = e.next().toLowerCase().charAt(0);
-			if (next == 'y') {
-				imprimirTauler(newBoard);
-			}
-			
-			else if (next == 'n') {
-				break;
+			System.out.println("Iteració " + (s+1) + "/" + iteracions);
+			System.out.println();
+			imprimirTauler(newBoard);
+			try {
+				TimeUnit.SECONDS.sleep(2);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
 			}
 		} 
 	}
@@ -226,6 +245,11 @@ public class joc {
 		System.out.print("> ");
 		length = e.nextInt();
 		
+		if (length == 0) {
+			System.out.println("El tauler no pot tenir 0 de llargada, es posarà un valor per defecte (3) ");
+			length = 3;
+		}
+		
 		return length;
 	}
 	
@@ -236,6 +260,11 @@ public class joc {
 		System.out.println("Introdueix l'alçada que vols que tingui el tauler: ");
 		System.out.print("> ");
 		height = e.nextInt();
+		
+		if (height == 0) {
+			System.out.println("El tauler no pot tenir 0 d'alçada, es posarà un valor per defecte (3) ");
+			height = 3;
+		}
 		
 		return height;
 	}
@@ -250,6 +279,7 @@ public class joc {
 	
 	private int menu() {
 		int menu = -1;
+		System.out.println();
 		System.out.println("BENVINGUT AL JOC DE LA VIDA");
 		System.out.println("Escull que vols fer: ");
 		System.out.println("1 - Definir tauler");
@@ -291,6 +321,7 @@ public class joc {
 		int [] normes = {2, 3, 3};
 		String norma;
 		System.out.println("Introdueix les normes a seguir durant el joc amb el següent format (AA/B) o escriu 00/0 per deixar les normes per defecte (23/3) : ");
+		System.out.print("> ");
 		norma = e.next();
 		normes[0] = Character.getNumericValue(norma.charAt(0));
 		normes[1] = Character.getNumericValue(norma.charAt(1));
@@ -308,6 +339,7 @@ public class joc {
 		int x = 0;
 		
 		System.out.println("Digues a quina llargada vols introduïr la cèl·lula ");
+		System.out.print("> ");
 		x = e.nextInt();
 		return x;
 	}
@@ -316,6 +348,7 @@ public class joc {
 		int y = 0;
 		
 		System.out.println("Digues a quina alçada vols introduïr la cèl·lula ");
+		System.out.print("> ");
 		y = e.nextInt();
 		return y;
 	}
@@ -342,14 +375,19 @@ public class joc {
 	
 	private void posicionamentAuto(char [][] board) {
 		System.out.println("Introdueix el nombre de grups de cèl·lules a crear: ");
+		System.out.print("> ");
 		int N = e.nextInt();
 		for (int cont = 0; cont < N; cont++) {
+			int pos1 = posicionamentAutox(board);
+			int pos2 = posicionamentAutoy(board);
+			board[pos1][pos2] = '■';
 			for (int i = 0; i < 5; i++) {
-				int pos1 = posicionamentAutox(board);
-				int pos2 = posicionamentAutoy(board);
-				board[pos1][pos2] = '■';
+				int x = (int)(Math.random()*((pos1+1)-(pos1-1)+1+(pos1-1)));
+				int y = (int)(Math.random()*((pos2+1)-(pos2-1)+1)+(pos2-1));
+				if ((x < board.length && x > 0) && (y < board[0].length && y > 0)) {
+					board[x][y] = '■';
+				}
 			}
-		}
-			
+		}	
 	}
 }
